@@ -9,7 +9,6 @@ tello.move_up(80)
 print(tello.get_battery())
 tello.streamon()
 
-
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 
@@ -25,7 +24,20 @@ def fly(x, y, w, h):
         y_move = -30
     else:
         y_move = 0
-    
+
+    if x + w / 2 < 200:
+        yaw_move = -30
+    elif x + w / 2 > 520:
+        yaw_move = 30
+    else:
+        yaw_move = 0
+
+    if y + h / 2 < 160:
+        z_move = 30
+    elif y + h / 2 > 320:
+        z_move = -30
+    else:
+        z_move = 0
 
     return tello.send_rc_control(
         x_move,
@@ -45,13 +57,16 @@ while True:
 
     if len(faces) > 0:
         x, y, w, h = faces[0]
-        cv2.rectangle(r_frame, (x, y), (x+w, y+h), (255, 0, 0), 4)
+        cv2.rectangle(r_frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
         fly(x, y, w, h)
     else:
         tello.send_rc_control(0, 0, 0, 0)
 
+    cv2.putText(r_frame, f'BATTERY: {tello.get_battery()}%', (10, 470), cv2.FONT_HERSHEY_SIMPLEX, 1, (180, 230, 100), 4)
+    cv2.putText(r_frame, f'HEIGHT: {tello.get_height()}sm', (10, 420), cv2.FONT_HERSHEY_SIMPLEX, 1, (180, 230, 100), 4)
+    cv2.putText(r_frame, f'TOTAL TIME: {tello.get_battery()}s', (10, 370), cv2.FONT_HERSHEY_SIMPLEX, 1, (180, 230, 100), 4)
     cv2.imshow('TELLO AI', r_frame)
-
+        
     if cv2.waitKey(1) == ord('q'):
         break
 
